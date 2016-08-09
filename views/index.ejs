@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+</head>
+<body>
+<h1><%= title %></h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>Application</th>
+        <th>DR1</th>
+        <th>DR2</th>
+        <th>DR3</th>
+        <th>DR4</th>
+        <th>DR5</th>
+        <th>DR6</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% for(var i = 0; i < version.length; i++) { %>
+    <tr>
+        <td><%= version[i].applicationName %></td>
+        <td><%= version[i].DR1 %></td>
+        <td><%= version[i].DR2 %></td>
+        <td><%= version[i].DR3 %></td>
+        <td><%= version[i].DR4 %></td>
+        <td><%= version[i].DR5 %></td>
+        <td><%= version[i].DR6 %></td>
+    </tr>
+    <% } %>
+    </tbody>
+</table>
+</body>
+</html>

@@ -13,7 +13,7 @@ router.get('/', function (req, res, next) {
                 etoil: {}
             };
 
-            // Récupération des versions micro-services et mpd
+            // RÃ©cupÃ©ration des versions micro-services et mpd
             value.forEach(function (microService) {
                 result[microService.ms] = result[microService.ms] !== undefined ? result[microService.ms] : {};
                 result[microService.ms][microService.env] = microService.version;

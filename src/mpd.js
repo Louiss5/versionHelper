@@ -6,6 +6,7 @@ var baseUrl = "http://recette.{0}.mari-sncf.io/api/{1}/healthcheck";
 var config = require("../config/config.json");
 
 function getHealthCheckByMS() {
+    console.log("Appel à la fonction faite !");
     var defer = Q.defer();
     var urls = [];
     var environementList = config.environementList;
@@ -23,12 +24,12 @@ function getHealthCheckByMS() {
     var promises = [];
     _.each(urls, function (url) {
         promises.push(getHealthCheck(url));
-    });
-    Q.allSettled(promises).then(
-        function (results) {
-            console.log("OK");
-            var response = [];
-            results.forEach(function (result) {
+            });
+            Q.allSettled(promises).then(
+                function (results) {
+                    console.log("OK");
+                    var response = [];
+                    results.forEach(function (result) {
                 if (result.state === "fulfilled") {
                     response.push(result.value);
                 } else {

@@ -3,11 +3,13 @@
 <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css'/>
+    <link rel='stylesheet' href='/stylesheets/bootstrap.css'/>
+    <link rel='stylesheet' href='/stylesheets/bootstrap-theme.css'/>
 </head>
-<body>
+<body  class="container">
 <h1><%= title %></h1>
 
-<table>
+<table class="table table-striped table-bordered">
     <thead>
     <tr>
         <th>Application</th>
@@ -22,7 +24,7 @@
     <tbody>
     <% for(var i = 0; i < version.length; i++) { %>
     <tr>
-        <td><%= version[i].applicationName %></td>
+        <th><%= version[i].applicationName %></th>
         <td><%= version[i].DR1 %></td>
         <td><%= version[i].DR2 %></td>
         <td><%= version[i].DR3 %></td>

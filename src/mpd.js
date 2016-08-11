@@ -2,14 +2,14 @@
 var request = require("request");
 var _ = require("underscore");
 var Q = require("q");
-var os = require("os");
 var baseUrl = "http://recette.{0}.mari-sncf.io/api/{1}/healthcheck";
+var config = require("../config/config.json");
 
 function getHealthCheckByMS() {
     var defer = Q.defer();
     var urls = [];
-    var environementList = ["sue1", "sue2", "sue3", "sue4", "sue5", "sue6"];
-    var msList = ["products", "itineraries", "orders"];
+    var environementList = config.environementList;
+    var msList = config.msList;
     _.each(environementList, function (environement) {
         _.each(msList, function (ms) {
             urls.push(

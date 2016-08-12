@@ -38,18 +38,21 @@
     </tbody>
 </table>
 
-<button type="button" class="btn btn-default" aria-label="Left Align">
+<button type="button" class="btn btn-default" id="refreshBtn" aria-label="Left Align">
     <span class="glyphicon glyphicon-refresh" aria-hidden="true"> Rafraîchir</span>
 </button>
 
 <script>
     $('button').click(function(){
+        document.getElementById("refreshBtn").disabled = true;
         $.ajax({url: "/data", success: function(result){
             for (i = 0; i < $('tbody tr').length ; i++){
                 for (j = 0; j < $($($('tbody tr')[i]).children('td')).length; j++) {
-                    $($($($('tbody tr')[i]).children('td'))[j]).text("AIE !");
+                    $($($($('tbody tr')[i]).children('td'))[j]).text(result.version[i][j]);
+                    console.log(result);
                 }
             }
+            document.getElementById("refreshBtn").disabled = false;
         }});
     });
 </script>

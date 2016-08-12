@@ -2,9 +2,10 @@ var express = require('express');
 var router = express.Router();
 var mpd = require("../src/mpd");
 var _ = require("underscore");
+var Q = require("q");
 
-/* GET home page. */
-router.get('/', function (req, res, next) {
+function getMyData () {
+    var defer = Q.defer();
     mpd.getHealthCheck().then(
         function (value) {
             console.log(value);
@@ -19,14 +20,14 @@ router.get('/', function (req, res, next) {
                 result[microService.ms][microService.env] = microService.version;
                 result.mpd[microService.env] = result[microService.env] !== undefined ?
                     result.mpd[microService.env].url === microService.mpd ?
-                        {url: microService.mpd, version: microService.mpdVersion} :
-                        {url: "N.A.", version: "N.A."} :
-                    {url: microService.mpd, version: microService.mpdVersion};
+                    {url: microService.mpd, version: microService.mpdVersion} :
+                    {url: "N.A.", version: "N.A."} :
+                {url: microService.mpd, version: microService.mpdVersion};
                 result.etoil[microService.env] = result[microService.env] !== undefined ?
                     result.etoil[microService.env] === microService.etoil ?
                         microService.etoil :
-                    "N.A." :
-                microService.etoil;
+                        "N.A." :
+                    microService.etoil;
             });
             console.log(result);
 
@@ -95,7 +96,26 @@ router.get('/', function (req, res, next) {
                     DR6: result.etoil.sue6
                 }
             ];
+            defer.resolve(tableVersion);
+        }
+    );
+    return defer.promise;
+}
+
+/* GET home page. */
+router.get('/', function (req, res, next) {
+    getMyData().then(
+        function(tableVersion) {
             res.render('index', {title: 'Vision des versions', version: tableVersion});
+        }
+    );
+});
+
+/* GET data. */
+router.get('/data', function (req, res, next) {
+    getMyData().then(
+        function(tableVersion) {
+            res.json({version: tableVersion});
         }
     );
 });

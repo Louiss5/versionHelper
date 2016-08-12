@@ -1,21 +1,27 @@
 var express = require('express');
+var Q = require("q");
 var router = express.Router();
 var mpd = require("../src/mpd");
+var dr = require("../src/siteDR");
 var _ = require("underscore");
-var Q = require("q");
 
 function getMyData () {
     var defer = Q.defer();
-    mpd.getHealthCheck().then(
+    Q.all([dr.getVersionDr(), mpd.getHealthCheck()]).then(
         function (value) {
             console.log(value);
             var result = {
+                dr: {},
                 mpd: {},
                 etoil: {}
             };
 
+            value[0].forEach(function (dr) {
+               result.dr[dr.env] = dr.version;
+            });
+
             // Récupération des versions micro-services et mpd
-            value.forEach(function (microService) {
+            value[1].forEach(function (microService) {
                 result[microService.ms] = result[microService.ms] !== undefined ? result[microService.ms] : {};
                 result[microService.ms][microService.env] = microService.version;
                 result.mpd[microService.env] = result[microService.env] !== undefined ?
@@ -29,11 +35,10 @@ function getMyData () {
                         "N.A." :
                     microService.etoil;
             });
-            console.log(result);
 
             var tableVersion = [
                 {
-                    applicationName: "SUE",
+                    applicationName: "SUE/BEA",
                     DR1: "1.0.0",
                     DR2: "1.0.0",
                     DR3: "1.0.0",
@@ -43,7 +48,7 @@ function getMyData () {
                 },
                 {
                     applicationName: "Products-ms",
-                    DR1: result.products.sue1,
+                    DR1: result.products.sue,
                     DR2: result.products.sue2,
                     DR3: result.products.sue3,
                     DR4: result.products.sue4,
@@ -52,7 +57,7 @@ function getMyData () {
                 },
                 {
                     applicationName: "Itineraries-ms",
-                    DR1: result.itineraries.sue1,
+                    DR1: result.itineraries.sue,
                     DR2: result.itineraries.sue2,
                     DR3: result.itineraries.sue3,
                     DR4: result.itineraries.sue4,
@@ -61,7 +66,7 @@ function getMyData () {
                 },
                 {
                     applicationName: "Orders-ms",
-                    DR1: result.orders.sue1,
+                    DR1: result.orders.sue,
                     DR2: result.orders.sue2,
                     DR3: result.orders.sue3,
                     DR4: result.orders.sue4,
@@ -70,16 +75,16 @@ function getMyData () {
                 },
                 {
                     applicationName: "Site DR",
-                    DR1: "1.0.0",
-                    DR2: "1.0.0",
-                    DR3: "1.0.0",
-                    DR4: "1.0.0",
-                    DR5: "1.0.0",
-                    DR6: "1.0.0"
+                    DR1: result.dr.dr,
+                    DR2: result.dr.dr2,
+                    DR3: result.dr.dr3,
+                    DR4: result.dr.dr4,
+                    DR5: result.dr.dr5,
+                    DR6: result.dr.dr6
                 },
                 {
                     applicationName: "MPD",
-                    DR1: result.mpd.sue1 ? result.mpd.sue1.url + " (" + result.mpd.sue1.version + ")" : "N.A.",
+                    DR1: result.mpd.sue ? result.mpd.sue.url + " (" + result.mpd.sue.version + ")" : "N.A.",
                     DR2: result.mpd.sue2 ? result.mpd.sue2.url + " (" + result.mpd.sue2.version + ")" : "N.A.",
                     DR3: result.mpd.sue3 ? result.mpd.sue3.url + " (" + result.mpd.sue3.version + ")" : "N.A.",
                     DR4: result.mpd.sue4 ? result.mpd.sue4.url + " (" + result.mpd.sue4.version + ")" : "N.A.",
@@ -88,7 +93,7 @@ function getMyData () {
                 },
                 {
                     applicationName: "Etoil",
-                    DR1: result.etoil.sue1,
+                    DR1: result.etoil.sue,
                     DR2: result.etoil.sue2,
                     DR3: result.etoil.sue3,
                     DR4: result.etoil.sue4,
@@ -103,7 +108,7 @@ function getMyData () {
 }
 
 /* GET home page. */
-router.get('/', function (req, res, next) {
+router.get('/', function (req, res) {
     getMyData().then(
         function(tableVersion) {
             res.render('index', {title: 'Vision des versions', version: tableVersion});
@@ -112,7 +117,7 @@ router.get('/', function (req, res, next) {
 });
 
 /* GET data. */
-router.get('/data', function (req, res, next) {
+router.get('/data', function (req, res) {
     getMyData().then(
         function(tableVersion) {
             res.json({version: tableVersion});

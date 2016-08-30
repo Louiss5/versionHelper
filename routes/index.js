@@ -4,9 +4,44 @@ var router = express.Router();
 var mpd = require("../src/mpd");
 var dr = require("../src/siteDR");
 var _ = require("underscore");
+var cache = require("@archiciel/cache");
 
-function getMyData () {
+var expireCache = 10 * 60; // 10 minutes (en secondes)
+
+function getTableVersion() {
     var defer = Q.defer();
+    cache.read("tableVersionData").then(
+        function (data) {
+            console.log("[index][getTableVersion] Retour de cache");
+            if (data) {
+                console.log("[index][getTableVersion] Clé trouvée");
+                try {
+                    var parsedData = JSON.parse(data);
+                    defer.resolve(parsedData);
+                }
+                catch (exception) {
+                    getData(defer);
+                }
+            }
+            else {
+                console.log("[index][getTableVersion] Aucune clé correspondante");
+                getData(defer);
+            }
+        },
+        function () {
+            console.log("[index][getTableVersion] Reject de cache");
+            getData(defer);
+        }
+    ).catch(
+        function (exception) {
+            console.log("[index][getTableVersion] Erreur dans cache read : " + exception);
+            getData(defer);
+        }
+    );
+    return defer.promise;
+}
+
+function getData(defer) {
     Q.all([dr.getVersionDr(), mpd.getHealthCheck()]).then(
         function (value) {
             console.log(value);
@@ -17,7 +52,7 @@ function getMyData () {
             };
 
             value[0].forEach(function (dr) {
-               result.dr[dr.env] = dr.version;
+                result.dr[dr.env] = dr.version;
             });
 
             // Récupération des versions micro-services et mpd
@@ -101,16 +136,16 @@ function getMyData () {
                     DR6: result.etoil.sue6
                 }
             ];
+            cache.write("tableVersionData", JSON.stringify(tableVersion), expireCache);
             defer.resolve(tableVersion);
         }
     );
-    return defer.promise;
 }
 
 /* GET home page. */
 router.get('/', function (req, res) {
-    getMyData().then(
-        function(tableVersion) {
+    getTableVersion().then(
+        function (tableVersion) {
             res.render('index', {title: 'Vision des versions', version: tableVersion});
         }
     );
@@ -118,8 +153,8 @@ router.get('/', function (req, res) {
 
 /* GET data. */
 router.get('/data', function (req, res) {
-    getMyData().then(
-        function(tableVersion) {
+    getTableVersion().then(
+        function (tableVersion) {
             res.json({version: tableVersion});
         }
     );

@@ -2,20 +2,36 @@ $( document ).ready(function() {
     // Click Modifier
     $('.modifyBtn').click(function(){
         if ($(this).parent()[0] == $($('.table tbody tr')[7]).children()[7]){
-            alert('Modification 1 !');
+            for (i=1; i<=6; i++) {
+                var html = $($($('.table tbody tr')[7]).children()[i]).html();
+                var input = $('<td><input type="text" size="15"/></td>');
+                input.val(html);
+                $($($('.table tbody tr')[7]).children()[i]).replaceWith(input);
+            }
         }
         else {
-            alert('Modification 2 !');
+            for (i=1; i<=6; i++) {
+                var html = $($($('.table tbody tr')[8]).children()[i]).html();
+                var input = $('<td><input type="text" size="15"/></td>');
+                input.val(html);
+                $($($('.table tbody tr')[8]).children()[i]).replaceWith(input);
+            }
         }
     });
 
     // Click Enregistrer
     $('.saveBtn').click(function(){
         if ($(this).parent()[0] == $($('.table tbody tr')[7]).children()[7]){
-            alert('Enregistrement 1 !');
+            for (i=1; i<=6; i++) {
+                var valueText = $('<td>' + $($('.table tbody tr')[7]).find("input")[i-1].value + '</td>');
+                $($($('.table tbody tr')[7]).children()[i]).replaceWith(valueText);
+            }
         }
         else {
-            alert('Enregistrement 2 !');
+            for (i=1; i<=6; i++) {
+                var valueText = $('<td></td>');
+                $($($('.table tbody tr')[7]).children()[i]).replaceWith(valueText);
+            }
         }
     });
 

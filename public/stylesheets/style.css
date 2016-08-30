@@ -6,3 +6,25 @@ body {
 a {
   color: #00B7FF;
 }
+
+tr td:last-child {
+  border-top: hidden!important;
+  border-right: hidden!important;
+  border-bottom: hidden!important;
+  background-color: white;
+}
+
+tr th:last-child {
+  border-top: hidden!important;
+  border-right: hidden!important;
+  border-bottom: hidden!important;
+  background-color: white;
+}
+
+tr td:first-child {
+  vertical-align: middle!important;
+}
+
+tr th:first-child {
+  vertical-align: middle!important;
+}

@@ -39,12 +39,12 @@ function getMyData () {
             var tableVersion = [
                 {
                     applicationName: "SUE/BEA",
-                    DR1: "1.0.0",
-                    DR2: "1.0.0",
-                    DR3: "1.0.0",
-                    DR4: "1.0.0",
-                    DR5: "1.0.0",
-                    DR6: "1.0.0"
+                    DR1: "N.A.",
+                    DR2: "N.A.",
+                    DR3: "N.A.",
+                    DR4: "N.A.",
+                    DR5: "N.A.",
+                    DR6: "N.A."
                 },
                 {
                     applicationName: "Products-ms",

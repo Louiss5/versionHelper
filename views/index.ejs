@@ -7,6 +7,7 @@
     <link rel='stylesheet' href='/stylesheets/bootstrap-theme.css'/>
     <script src='/javascripts/jquery.js'></script>
     <script src='/javascripts/bootstrap.js'></script>
+    <script src='/javascripts/main.js'></script>
 </head>
 <body  class="container">
 <h1><%= title %></h1>
@@ -21,7 +22,7 @@
         <th>DR4</th>
         <th>DR5</th>
         <th>DR6</th>
-        <th>(Colonne à cacher pour n'avoir que les boutons)</th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
@@ -45,12 +46,12 @@
         <td></td>
         <td></td>
         <td></td>
-        <td>
-            <button type="button" class="btn btn-default" aria-label="Left Align">
-                <span class="glyphicon glyphicon-pencil" aria-hidden="true"> Modifier</span>
+        <td style="text-align: center">
+            <button type="button" class="btn btn-default" aria-label="Left Align" disabled>
+                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
             </button>
-            <button type="button" class="btn btn-default" aria-label="Left Align">
-                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"> Enregistrer</span>
+            <button type="button" class="btn btn-default" aria-label="Left Align" disabled>
+                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
             </button>
         </td>
     </tr>
@@ -62,12 +63,12 @@
         <td></td>
         <td></td>
         <td></td>
-        <td>
-            <button type="button" class="btn btn-default" aria-label="Left Align">
-                <span class="glyphicon glyphicon-pencil" aria-hidden="true"> Modifier</span>
+        <td style="text-align: center">
+            <button type="button" class="btn btn-default" aria-label="Left Align" disabled>
+                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
             </button>
-            <button type="button" class="btn btn-default" aria-label="Left Align">
-                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"> Enregistrer</span>
+            <button type="button" class="btn btn-default" aria-label="Left Align" disabled>
+                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
             </button>
         </td>
     </tr>
@@ -77,21 +78,6 @@
 <button type="button" class="btn btn-default" id="refreshBtn" aria-label="Left Align">
     <span class="glyphicon glyphicon-refresh" aria-hidden="true"> Rafraîchir</span>
 </button>
-
-<script>
-    $('button').click(function(){
-        document.getElementById("refreshBtn").disabled = true;
-        $.ajax({url: "/data", success: function(result){
-            for (i = 0; i < $('tbody tr').length ; i++){
-                for (j = 0; j < $($($('tbody tr')[i]).children('td')).length; j++) {
-                    $($($($('tbody tr')[i]).children('td'))[j]).text(result.version[i][j]);
-                    console.log(result);
-                }
-            }
-            document.getElementById("refreshBtn").disabled = false;
-        }});
-    });
-</script>
 
 </body>
 </html>

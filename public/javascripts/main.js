@@ -2,19 +2,13 @@ $( document ).ready(function() {
     // Click Modifier
     $('.modifyBtn').click(function(){
         if ($(this).parent()[0] == $($('.table tbody tr')[7]).children()[7]){
-            for (i=1; i<=6; i++) {
-                var html = $($($('.table tbody tr')[7]).children()[i]).html();
-                var input = $('<td><input type="text" size="15"/></td>');
-                input.val(html);
-                $($($('.table tbody tr')[7]).children()[i]).replaceWith(input);
+            for (i=0; i<=5; i++) {
+                $($('.table tbody tr')[7]).find("input")[i].disabled = false;
             }
         }
         else {
-            for (i=1; i<=6; i++) {
-                var html = $($($('.table tbody tr')[8]).children()[i]).html();
-                var input = $('<td><input type="text" size="15"/></td>');
-                input.val(html);
-                $($($('.table tbody tr')[8]).children()[i]).replaceWith(input);
+            for (i=0; i<=5; i++) {
+                $($('.table tbody tr')[8]).find("input")[i].disabled = false;
             }
         }
     });
@@ -22,15 +16,13 @@ $( document ).ready(function() {
     // Click Enregistrer
     $('.saveBtn').click(function(){
         if ($(this).parent()[0] == $($('.table tbody tr')[7]).children()[7]){
-            for (i=1; i<=6; i++) {
-                var valueText = $('<td>' + $($('.table tbody tr')[7]).find("input")[i-1].value + '</td>');
-                $($($('.table tbody tr')[7]).children()[i]).replaceWith(valueText);
+            for (i=0; i<=5; i++) {
+                $($('.table tbody tr')[7]).find("input")[i].disabled = true;
             }
         }
         else {
-            for (i=1; i<=6; i++) {
-                var valueText = $('<td></td>');
-                $($($('.table tbody tr')[7]).children()[i]).replaceWith(valueText);
+            for (i=0; i<=5; i++) {
+                $($('.table tbody tr')[8]).find("input")[i].disabled = true;
             }
         }
     });

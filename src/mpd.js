@@ -10,25 +10,27 @@ function getHealthCheckByMS() {
     var urls = [];
     var environementList = config.environementList;
     var msList = config.msList;
-    _.each(environementList, function (environement) {
-        _.each(msList, function (ms) {
-            urls.push(
-                {
-                    url: baseUrl.replace("{0}", environement).replace("{1}", ms),
-                    ms: ms,
-                    env: environement
-                });
+    _.each(environementList, function (environementType, key) {
+        baseUrl = environementType.baseUrl;
+        _.each(environementType.env, function (environement) {
+            _.each(msList, function (ms) {
+                urls.push(
+                    {
+                        url: baseUrl.replace("{0}", environement).replace("{1}", ms),
+                        ms: ms,
+                        env: key + environement
+                    });
+            });
         });
     });
     var promises = [];
     _.each(urls, function (url) {
         promises.push(getHealthCheck(url));
-            });
-            Q.allSettled(promises).then(
-                function (results) {
-                    console.log("OK");
-                    var response = [];
-                    results.forEach(function (result) {
+    });
+    Q.allSettled(promises).then(
+        function (results) {
+            var response = [];
+            results.forEach(function (result) {
                 if (result.state === "fulfilled") {
                     response.push(result.value);
                 } else {
@@ -71,6 +73,7 @@ function getHealthCheck(url) {
             defer.reject({
                 ms: url.ms,
                 env: url.env,
+                url: url.url,
                 statusCode: (httpRes ? httpRes.statusCode : 408),
                 error: error,
                 message: ex
@@ -81,6 +84,7 @@ function getHealthCheck(url) {
             defer.reject({
                 ms: url.ms,
                 env: url.env,
+                url: url.url,
                 statusCode: (httpRes ? httpRes.statusCode : 408),
                 error: error,
                 message: body

@@ -1,15 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="versionHelper">
 <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/bootstrap.css'/>
     <link rel='stylesheet' href='/stylesheets/bootstrap-theme.css'/>
     <link rel='stylesheet' href='/stylesheets/style.css'/>
     <script src='/javascripts/jquery.js'></script>
+    <script src='/javascripts/angular.js'></script>
     <script src='/javascripts/bootstrap.js'></script>
+    <script src='/app/version.controller.js'></script>
     <script src='/javascripts/main.js'></script>
 </head>
-<body  class="container">
+<body class="container" ng-controller="versionController">
 <h1><%= title %></h1>
 
 <table class="table table-striped table-bordered">

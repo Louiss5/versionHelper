@@ -3,7 +3,7 @@ var Q = require("q");
 var _ = require("underscore");
 var himalaya = require("himalaya");
 var request = require("request");
-var config = require("../config/config.json");
+var config = require("../config/config").config;
 var baseUrl = "http://recette.{0}.mari-sncf.io/monitoring";
 
 function getVersionDr() {

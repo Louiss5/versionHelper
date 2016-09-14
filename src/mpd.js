@@ -3,7 +3,7 @@ var request = require("request");
 var _ = require("underscore");
 var Q = require("q");
 var baseUrl = "http://recette.{0}.mari-sncf.io/api/{1}/healthcheck";
-var config = require("../config/config.json");
+var config = require("../config/config").config;
 
 function getHealthCheckByMS() {
     var defer = Q.defer();
@@ -23,12 +23,12 @@ function getHealthCheckByMS() {
     var promises = [];
     _.each(urls, function (url) {
         promises.push(getHealthCheck(url));
-            });
-            Q.allSettled(promises).then(
-                function (results) {
-                    console.log("OK");
-                    var response = [];
-                    results.forEach(function (result) {
+    });
+    Q.allSettled(promises).then(
+        function (results) {
+            console.log("OK");
+            var response = [];
+            results.forEach(function (result) {
                 if (result.state === "fulfilled") {
                     response.push(result.value);
                 } else {

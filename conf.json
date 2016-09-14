@@ -1,0 +1,55 @@
+{
+  "application": "@mari/versionHelper",
+  "version": "2.8.1",
+  "domain": "IV/purple",
+  "modules": {
+    "mongo": {
+      "database": "versionHelper",
+      "local": true
+    },
+    "log": {
+      "local": true,
+      "level": "debug"
+    },
+    "versionHelper": {
+      "refreshPattern": "*/30 * * * *",
+      "schema":{
+        "data":"String",
+        "date":"Date"
+      },
+      "environementList": [
+        "sue",
+        "sue2",
+        "sue3",
+        "sue4",
+        "sue5",
+        "sue6"
+      ],
+      "environementDRList": [
+        "dr",
+        "dr2",
+        "dr3",
+        "dr4",
+        "dr5",
+        "dr6"
+      ],
+      "msList": [
+        "products",
+        "itineraries",
+        "orders"
+      ]
+    }
+  },
+  "techVars": {
+    "APP_SMTP_HOST": "ptx.send.corp.sopra",
+    "APP_SMTP_PORT": "587",
+    "APP_MONGO_HOST": "slnxaflbigdata01.ptx.fr.sopra",
+    "APP_ESB_HOST": "slnxmeandev06.ptx.fr.sopra",
+    "APP_ENCRYPT_ALGORITHM": "aes-256-cbc",
+    "APP_ENCRYPT_PASSWORD": "d6F4Ejeq",
+    "APP_LOG_HOST": "slnxmeandev06.ptx.fr.sopra",
+    "APP_PROBE_HOST": "slnxmeandev06.ptx.fr.sopra",
+    "APP_LOGCORE_LVL": "debug",
+    "PORT": "3062"
+  }
+}

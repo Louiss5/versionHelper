@@ -1,15 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="versionHelper">
 <head>
     <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css'/>
     <link rel='stylesheet' href='/stylesheets/bootstrap.css'/>
     <link rel='stylesheet' href='/stylesheets/bootstrap-theme.css'/>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
     <script src='/javascripts/jquery.js'></script>
+    <script src='/javascripts/angular.js'></script>
     <script src='/javascripts/bootstrap.js'></script>
+    <script src='/app/version.controller.js'></script>
     <script src='/javascripts/main.js'></script>
 </head>
-<body class="container">
+<body class="container" ng-controller="versionController">
 <h1><%= title %></h1>
 
 <table class="table table-striped table-bordered">
@@ -31,42 +33,6 @@
     <% for(var i = 0; i < version.length; i++) { %>
     <tr>
         <th><%= version[i].applicationName %></th>
-        <% if(version[i].applicationName === "MPD"){ %>
-            <% for (var test in version[i]){ %>
-                <% if(test !== "applicationName" && version[i].hasOwnProperty(test)){ %>
-                <td>
-                    <% if(version[i][test].url){ %>
-                        <label id="mpdPlateformLabel<%= [i] %>" for="mpdPlateformSelect<%= [i] %>" style="display: none"></label>
-                        <select id="mpdPlateformSelect<%= [i] %>">
-                            <% for(var j = 0; j < mpdPlateform.length; j++) { %>
-                            <option
-                                    <% if(version[i][test].url === mpdPlateform[j]){ %>
-                                    selected
-                                    <% } %>
-                                    ><%= mpdPlateform[j] %></option>
-                            <% } %>
-                        </select>
-                        <% if(version[i][test].version){ %>
-                        version : <%= version[i][test].version %>
-                        <% } %>
-                    <% } %>
-                </td>
-                <% } %>
-            <% } %>
-        <td>
-            <button type="button" class="btn btn-default" aria-label="Left Align">
-                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-            </button>
-            <button type="button" class="btn btn-default" aria-label="Left Align">
-                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-            </button>
-            <button type="button" class="btn btn-default" aria-label="Left Align">
-                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-            </button>
-        </td>
-        <% } else{ %>
-        <td><%= version[i].DevLot1 %></td>
-        <td><%= version[i].DevLot2 %></td>
         <td><%= version[i].DR1 %></td>
         <td><%= version[i].DR2 %></td>
         <td><%= version[i].DR3 %></td>
@@ -79,38 +45,38 @@
     <% } %>
     <tr>
         <th>Date de déploiement</th>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td><input type="text" value="" size="15" disabled></td>
+        <td><input type="text" value="" size="15" disabled></td>
+        <td><input type="text" value="" size="15" disabled></td>
+        <td><input type="text" value="" size="15" disabled></td>
+        <td><input type="text" value="" size="15" disabled></td>
+        <td><input type="text" value="" size="15" disabled></td>
+        <td><input type="text" value="" size="15" disabled></td>
+        <td><input type="text" value="" size="15" disabled></td>
         <td style="text-align: center">
-            <button type="button" class="btn btn-default" aria-label="Left Align" disabled>
+            <button type="button" class="btn btn-default modifyBtn" aria-label="Left Align">
                 <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
             </button>
-            <button type="button" class="btn btn-default" aria-label="Left Align" disabled>
+            <button type="button" class="btn btn-default saveBtn" aria-label="Left Align">
                 <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
             </button>
         </td>
     </tr>
     <tr>
         <th>Lot</th>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td><input type="text" value="" size="15" disabled></td>
+        <td><input type="text" value="" size="15" disabled></td>
+        <td><input type="text" value="" size="15" disabled></td>
+        <td><input type="text" value="" size="15" disabled></td>
+        <td><input type="text" value="" size="15" disabled></td>
+        <td><input type="text" value="" size="15" disabled></td>
+        <td><input type="text" value="" size="15" disabled></td>
+        <td><input type="text" value="" size="15" disabled></td>
         <td style="text-align: center">
-            <button type="button" class="btn btn-default" aria-label="Left Align" disabled>
+            <button type="button" class="btn btn-default modifyBtn" aria-label="Left Align">
                 <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
             </button>
-            <button type="button" class="btn btn-default" aria-label="Left Align" disabled>
+            <button type="button" class="btn btn-default saveBtn" aria-label="Left Align">
                 <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
             </button>
         </td>

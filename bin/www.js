@@ -3,6 +3,7 @@
     "use strict";
     var Q = require("q");
     var logger = require("@archiciel/log");
+    var configurator = require("@archiciel/configurator");
 
     logger.init().then(
         function () {
@@ -32,7 +33,8 @@
                      * Get port from environment and store in Express.
                      */
 
-                    var port = normalizePort('3062');
+                    var portTechVar = configurator.getTechVar("PORT");
+                    var port = normalizePort(portTechVar || 3030);
                     app.set('port', port);
 
                     /**

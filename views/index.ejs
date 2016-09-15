@@ -45,8 +45,8 @@
         <th>MPD</th>
         <td ng-repeat="mpd in dataTable.MPD">
             <label ng-if="mpd.url" ng-show="!mpdEdit" id="mpdPlateformLabel{{$index}}" for="mpdPlateformSelect{{$index}}">{{mpd.url}}</label>
-            <select ng-if="mpd.url" ng-show="mpdEdit" id="mpdPlateformSelect{{$index}}">
-                <option ng-repeat="mpdPlateform in mpdPlateforms" ng-selected="mpd.url === mpdPlateform">
+            <select ng-if="mpd.url" ng-show="mpdEdit" id="mpdPlateformSelect{{$index}}" ng-model="mpd.url">
+                <option ng-repeat="mpdPlateform in mpdPlateforms" value="{{mpdPlateform}}" ng-selected="mpd.url === mpdPlateform">
                     {{mpdPlateform}}
                 </option>
             </select>

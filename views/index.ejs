@@ -81,7 +81,7 @@
         <th>Date de déploiement</th>
         <td ng-repeat="deploy in deployments">
             <label ng-show="!deployDateEdit" id="deployDateLabel{{$index}}" for="deployDateInput{{$index}}">{{deploy.date}}</label>
-            <input ng-show="deployDateEdit" id="deployDateInput{{$index}}" type="text" value="{{deploy.date}}" size="15">
+            <input ng-show="deployDateEdit" id="deployDateInput{{$index}}" type="text" ng-model="deploy.date" size="15">
         </td>
         <td style="text-align: center">
             <button ng-show="!deployDateEdit" type="button" ng-click="deployDateEdit = !deployDateEdit" class="btn btn-default">
@@ -96,7 +96,7 @@
         <th>Lot</th>
         <td ng-repeat="deploy in deployments">
             <label ng-show="!lotEdit" id="lotLabel{{$index}}" for="lotInput{{$index}}">{{deploy.lot}}</label>
-            <input ng-show="lotEdit" id="lotInput{{$index}}" type="text" value="{{deploy.lot}}" size="15">
+            <input ng-show="lotEdit" id="lotInput{{$index}}" type="text" ng-model="deploy.lot" size="15">
         </td>
         <td style="text-align: center">
             <button ng-show="!lotEdit" type="button" ng-click="lotEdit = !lotEdit" class="btn btn-default">

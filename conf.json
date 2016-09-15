@@ -17,14 +17,26 @@
         "data":"String",
         "date":"Date"
       },
-      "environementList": [
-        "sue",
-        "sue2",
-        "sue3",
-        "sue4",
-        "sue5",
-        "sue6"
-      ],
+      "environementList": {
+        "dev": {
+          "baseUrl": "http://172.17.173.247:3001/api/{1}{0}/healthcheck",
+          "env": [
+            "",
+            "AS2"
+          ]
+        },
+        "dr": {
+          "baseUrl": "http://recette.{0}.mari-sncf.io/api/{1}/healthcheck",
+          "env": [
+            "sue",
+            "sue2",
+            "sue3",
+            "sue4",
+            "sue5",
+            "sue6"
+          ]
+        }
+      },
       "environementDRList": [
         "dr",
         "dr2",
@@ -37,6 +49,14 @@
         "products",
         "itineraries",
         "orders"
+      ],
+      "mpdPlateform": [
+        "integration1",
+        "integration2",
+        "integration3",
+        "recette1",
+        "recette2",
+        "recette3"
       ]
     }
   },

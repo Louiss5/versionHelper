@@ -96,10 +96,15 @@ function getHealthCheck(url) {
                     return service.serviceName === "MPD";
                 }
             );
-            var urlMPD = serviceMPD.url;
-            urlMPD = urlMPD.split(".")[0];
-            var versionMPD = serviceMPD.version;
-            var etoil = serviceMPD.etoil;
+            var urlMPD;
+            var versionMPD;
+            var etoil;
+            if (serviceMPD) {
+                urlMPD = serviceMPD.url;
+                urlMPD = urlMPD.split(".")[0];
+                versionMPD = serviceMPD.version;
+                etoil = serviceMPD.etoil;
+            }
             var result = {
                 ms: url.ms,
                 env: url.env,

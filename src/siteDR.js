@@ -24,7 +24,6 @@ function getVersionDr() {
     });
     Q.allSettled(promises).then(
         function (results) {
-            console.log("OK");
             var response = [];
             results.forEach(function (result) {
                 if (result.state === "fulfilled") {

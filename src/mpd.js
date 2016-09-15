@@ -10,14 +10,17 @@ function getHealthCheckByMS() {
     var urls = [];
     var environementList = config.environementList;
     var msList = config.msList;
-    _.each(environementList, function (environement) {
-        _.each(msList, function (ms) {
-            urls.push(
-                {
-                    url: baseUrl.replace("{0}", environement).replace("{1}", ms),
-                    ms: ms,
-                    env: environement
-                });
+    _.each(environementList, function (environementType, key) {
+        baseUrl = environementType.baseUrl;
+        _.each(environementType.env, function (environement) {
+            _.each(msList, function (ms) {
+                urls.push(
+                    {
+                        url: baseUrl.replace("{0}", environement).replace("{1}", ms),
+                        ms: ms,
+                        env: key + environement
+                    });
+            });
         });
     });
     var promises = [];
@@ -26,7 +29,6 @@ function getHealthCheckByMS() {
     });
     Q.allSettled(promises).then(
         function (results) {
-            console.log("OK");
             var response = [];
             results.forEach(function (result) {
                 if (result.state === "fulfilled") {
@@ -71,6 +73,7 @@ function getHealthCheck(url) {
             defer.reject({
                 ms: url.ms,
                 env: url.env,
+                url: url.url,
                 statusCode: (httpRes ? httpRes.statusCode : 408),
                 error: error,
                 message: ex
@@ -81,6 +84,7 @@ function getHealthCheck(url) {
             defer.reject({
                 ms: url.ms,
                 env: url.env,
+                url: url.url,
                 statusCode: (httpRes ? httpRes.statusCode : 408),
                 error: error,
                 message: body
@@ -92,10 +96,15 @@ function getHealthCheck(url) {
                     return service.serviceName === "MPD";
                 }
             );
-            var urlMPD = serviceMPD.url;
-            urlMPD = urlMPD.split(".")[0];
-            var versionMPD = serviceMPD.version;
-            var etoil = serviceMPD.etoil;
+            var urlMPD;
+            var versionMPD;
+            var etoil;
+            if (serviceMPD) {
+                urlMPD = serviceMPD.url;
+                urlMPD = urlMPD.split(".")[0];
+                versionMPD = serviceMPD.version;
+                etoil = serviceMPD.etoil;
+            }
             var result = {
                 ms: url.ms,
                 env: url.env,

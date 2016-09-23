@@ -7,7 +7,7 @@ var logger = require("@archiciel/log");
 var config = require("../config/config").config;
 var dataNOSQL = require("@archiciel/data-nosql");
 
-var expireCache = 0.25 * 60; // 10 minutes (en secondes)
+var expireCache = 10 * 60; // 10 minutes (en secondes)
 
 function getTableVersion() {
     var defer = Q.defer();
@@ -174,7 +174,7 @@ function getData(defer) {
                 date: Date.now()
             };
             dataNOSQL.create("versionHelper", config.schema, noSqlData);
-            cache.write("tableVersionData", JSON.stringify(tableVersion), expireCache);
+            cache.write("tableVersionData", JSON.stringify(noSqlData), expireCache);
             if (defer) {
                 defer.resolve(tableVersion);
             }
@@ -184,11 +184,21 @@ function getData(defer) {
 }
 
 function readDataDb(defer) {
-    dataNOSQL.read("versionHelper", config.schema, {}, {sort: '-date'}).then(
+    dataNOSQL.read("versionHelper", config.schema, {}, {sort: '-date', limit: 1}).then(
         function (value) {
-            logger.debug("[index][getTableVersion] Retour de dataNOSQL.read");
+            logger.debug("[index][readDataDb] Retour de dataNOSQL.read");
+            console.log(value);
             if (Array.isArray(value) && value[0]._doc.hasOwnProperty("data")) {
-                defer.resolve(JSON.parse(value[0]._doc.data));
+                try {
+                    var jsonData = {
+                        "data": JSON.parse(value[0]._doc.data),
+                        "date": value[0]._doc.date
+                    };
+                    defer.resolve(jsonData);
+                }
+                catch (exception) {
+                    logger.debug("[index][readDataDb] Exception JSON.parse : " + exception);
+                }
             }
             defer.reject("Erreur");
         },

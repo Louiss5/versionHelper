@@ -50,13 +50,15 @@ function versionController($scope) {
         "recette3"
     ];
     $scope.dataTable = {};
+    $scope.refreshDate = "";
     $scope.refreshData = function () {
         $.ajax(
             {
                 method: "GET",
                 url: "/data",
                 success: function (result) {
-                    $scope.dataTable = result;
+                    $scope.dataTable = result.data;
+                    $scope.refreshDate = result.date;
                     $scope.$apply();
                 },
                 error: function (error) {

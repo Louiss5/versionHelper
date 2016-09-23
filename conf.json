@@ -70,6 +70,6 @@
     "APP_LOG_HOST": "slnxmeandev06.ptx.fr.sopra",
     "APP_PROBE_HOST": "slnxmeandev06.ptx.fr.sopra",
     "APP_LOGCORE_LVL": "debug",
-    "PORT": "3062"
+    "PORT": "3022"
   }
 }

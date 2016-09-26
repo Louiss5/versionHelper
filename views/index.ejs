@@ -29,7 +29,7 @@
     </tr>
     </thead>
     <tbody>
-    <tr ng-repeat="(key, value) in dataTable" ng-if="key !== 'MPD' && key !== 'Etoil'">
+    <tr ng-repeat="(key, value) in dataTable track by key" ng-if="key !== 'MPD' && key !== 'Etoil'">
         <th>{{key}}</th>
         <td>{{value.DevLot1}}</td>
         <td>{{value.DevLot2}}</td>

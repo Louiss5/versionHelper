@@ -12,7 +12,13 @@
     <script src='/javascripts/main.js'></script>
 </head>
 <body class="container" ng-controller="versionController">
+<div class="alert alert-success" role="alert">
+    Enregistrement effectué.
+</div>
 <h1><%= title %></h1>
+<button type="button" class="btn btn-default" id="forceUpdate" ng-click="forceUpdate()">
+    <span class="glyphicon glyphicon-refresh"> Forcer le rafraichissement</span>
+</button>
 <table class="table table-striped table-bordered">
     <thead>
     <tr>
@@ -29,8 +35,8 @@
     </tr>
     </thead>
     <tbody>
-    <tr ng-repeat="(key, value) in dataTable track by key" ng-if="key !== 'MPD' && key !== 'Etoil'">
-        <th>{{key}}</th>
+    <tr ng-repeat="value in dataTable.tableVersion">
+        <th>{{value.appName}}</th>
         <td>{{value.DevLot1}}</td>
         <td>{{value.DevLot2}}</td>
         <td>{{value.DR1}}</td>
@@ -71,30 +77,29 @@
         <th>Etoil</th>
         <td ng-repeat="etoil in dataTable.Etoil">
             <p ng-if="etoil.isDifferent">Attention !!!</p>
-
-            <p ng-if="!etoil.isDifferent">{{etoil}}</p>
+            <p ng-if="!etoil.isDifferent">{{etoil.value}}</p>
         </td>
         <td>
         </td>
     </tr>
     <tr>
         <th>Date de déploiement</th>
-        <td ng-repeat="deploy in deployments">
+        <td ng-repeat="deploy in dataTable.Deploy">
             <label ng-show="!deployDateEdit" id="deployDateLabel{{$index}}" for="deployDateInput{{$index}}">{{deploy.date}}</label>
             <input ng-show="deployDateEdit" id="deployDateInput{{$index}}" type="text" ng-model="deploy.date" size="15">
         </td>
         <td style="text-align: center">
-            <button ng-show="!deployDateEdit" type="button" ng-click="deployDateEdit = !deployDateEdit" class="btn btn-default">
+            <button ng-show="!deployDateEdit" type="button" ng-click="deployDateChange()" class="btn btn-default">
                 <span class="glyphicon glyphicon-pencil"></span>
             </button>
-            <button ng-show="deployDateEdit" type="button" ng-click="deployDateEdit = !deployDateEdit" class="btn btn-default">
+            <button ng-show="deployDateEdit" type="button" ng-click="deployDateChange()" class="btn btn-default">
                 <span class="glyphicon glyphicon-floppy-disk"></span>
             </button>
         </td>
     </tr>
     <tr>
         <th>Lot</th>
-        <td ng-repeat="deploy in deployments">
+        <td ng-repeat="deploy in dataTable.Deploy">
             <label ng-show="!lotEdit" id="lotLabel{{$index}}" for="lotInput{{$index}}">{{deploy.lot}}</label>
             <input ng-show="lotEdit" id="lotInput{{$index}}" type="text" ng-model="deploy.lot" size="15">
         </td>

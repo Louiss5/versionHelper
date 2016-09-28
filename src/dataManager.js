@@ -4,11 +4,11 @@ var dr = require("../src/siteDR");
 var _ = require("underscore");
 var cache = require("@archiciel/cache");
 var logger = require("@archiciel/log");
-var config = require("../config/config").config;
 var dataNOSQL = require("@archiciel/data-nosql");
 var tableVersionModel = require("../model/tableVersionModel");
+var utils = require("./utils");
 
-var expireCache = 10 * 60; // 10 minutes (en secondes)
+var expireCache = 0.1 * 60; // 10 minutes (en secondes)
 
 function getTableVersion() {
     var defer = Q.defer();
@@ -18,7 +18,8 @@ function getTableVersion() {
             if (data) {
                 logger.debug("[index][getTableVersion] Clé trouvée");
                 try {
-                    var parsedData = JSON.parse(data);
+                    var parsedData = utils.parseJSON(data);
+                    parsedData.data = utils.parseJSON(parsedData.data);
                     defer.resolve(parsedData);
                 }
                 catch (exception) {
@@ -44,6 +45,10 @@ function getTableVersion() {
     return defer.promise;
 }
 
+/**
+ * Récupération des données directement par appel des url.
+ * @param defer Promesse à retourner.
+ */
 function getData(defer) {
     Q.all([dr.getVersionDr(), mpd.getHealthCheck()]).then(
         function (value) {
@@ -92,47 +97,81 @@ function getData(defer) {
                 }
             });
 
-            var tableVersion = new tableVersionModel(result);
+            try {
+                var tableVersion = new tableVersionModel(result);
+            }
+            catch (reason) {
+                logger.error(reason);
+                throw new Error("Erreur lors de la formation du model, ajout en base impossible.")
+            }
             var noSqlData = {
-                data: JSON.stringify(tableVersion),
+                data: tableVersion,
                 date: Date.now()
             };
-            dataNOSQL.create("versionHelper", config.schema, noSqlData);
-            cache.write("tableVersionData", JSON.stringify(noSqlData), expireCache);
+            console.log(noSqlData);
+            readDataDb.then(
+                function (value) {
+                    noSqlData.data.Deploy = value.data.Deploy;
+                    dataNOSQL.insertCollection("versionHelper", noSqlData);
+                },
+                function () {
+                    dataNOSQL.insertCollection("versionHelper", noSqlData);
+                }
+            );
+            cache.write("tableVersionData", utils.stringifyJSON(noSqlData), expireCache);
             if (defer) {
-                defer.resolve(tableVersion);
+                defer.resolve(noSqlData);
             }
         }
     )
     ;
 }
 
+function updateDeployInformation(data) {
+    var defer = Q.defer();
+    readDataDb.then(
+        function (value) {
+            var date = value[0].date;
+            dataNOSQL.updateCollection("versionHelper", {$set: {"data.Deploy": data}}, {date: date}, {multi: true}).then(
+                function () {
+                    logger.info("[index][updateCollection] Update de la date " + date + " OK");
+                    cache.remove("tableVersionData");
+                    defer.resolve("Update OK");
+                },
+                function (reason) {
+                    defer.reject("Update error : " + reason);
+                }
+            );
+        },
+        function (reason) {
+            defer.reject("Erreur : " + reason);
+        }
+    );
+    return defer.promise;
+}
+
+/**
+ * Récupération des données de version en base.
+ * @param defer Promesse à retourner.
+ */
 function readDataDb(defer) {
-    dataNOSQL.read("versionHelper", config.schema, {}, {sort: '-date', limit: 1}).then(
+    dataNOSQL.readCollection("versionHelper", {}, {sort: {date: -1}, limit: 1}).then(
         function (value) {
             logger.debug("[index][readDataDb] Retour de dataNOSQL.read");
-            console.log(value);
-            if (Array.isArray(value) && value[0]._doc.hasOwnProperty("data")) {
-                try {
-                    var jsonData = {
-                        "data": JSON.parse(value[0]._doc.data),
-                        "date": value[0]._doc.date
-                    };
-                    defer.resolve(jsonData);
-                }
-                catch (exception) {
-                    logger.debug("[index][readDataDb] Exception JSON.parse : " + exception);
-                }
+            if (Array.isArray(value) && value[0]) {
+                defer.resolve(value[0]);
             }
             defer.reject("Erreur");
         },
         function (reason) {
+            logger.warn("[index][readDataDb] Erreur : " + reason);
             defer.reject("Erreur : " + reason);
         }
     );
 }
 
 module.exports = {
+    updateDeployInformation: updateDeployInformation,
     getTableVersion: getTableVersion,
     getData: getData
 };

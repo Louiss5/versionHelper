@@ -4,6 +4,7 @@ var _ = require("underscore");
 var Q = require("q");
 var baseUrl = "http://recette.{0}.mari-sncf.io/api/{1}/healthcheck";
 var config = require("../config/config").config;
+var logger = require("@archiciel/log");
 
 function getHealthCheckByMS() {
     var defer = Q.defer();
@@ -34,13 +35,13 @@ function getHealthCheckByMS() {
                 if (result.state === "fulfilled") {
                     response.push(result.value);
                 } else {
-                    console.log(result.reason);
+                    logger.warn("Erreur lors de la récupération des info de " + result.reason.ms + " sur " + result.reason.url);
                 }
             });
             defer.resolve(response);
         },
         function (error) {
-            console.log("ERROR");
+            logger.warn("[mpd][getHealthCheckByMS] ERROR : " + error);
             defer.reject({
                 statusCode: 404,
                 error: error
@@ -48,7 +49,7 @@ function getHealthCheckByMS() {
         }
     ).catch(
         function (exception) {
-            console.log("EXCEPTION");
+            logger.warn("[mpd][getHealthCheckByMS] EXCEPTION : " + exception);
             defer.reject({
                 statusCode: 500,
                 error: exception

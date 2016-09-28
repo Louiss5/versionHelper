@@ -1,46 +1,12 @@
 var app = angular.module("versionHelper", []);
 app.controller("versionController", versionController);
 
-versionController.$inject = ["$scope"];
+versionController.$inject = ["$scope", "$http"];
 
-function versionController($scope) {
+function versionController($scope, $http) {
     $scope.mpdEdit = false;
     $scope.deployDateEdit = false;
     $scope.lotEdit = false;
-    $scope.deployments = {
-        "DevLot1": {
-            date: "",
-            lot: ""
-        },
-        "DevLot2": {
-            date: "",
-            lot: ""
-        },
-        "DR1": {
-            date: "",
-            lot: ""
-        },
-        "DR2": {
-            date: "",
-            lot: ""
-        },
-        "DR3": {
-            date: "",
-            lot: ""
-        },
-        "DR4": {
-            date: "",
-            lot: ""
-        },
-        "DR5": {
-            date: "",
-            lot: ""
-        },
-        "DR6": {
-            date: "",
-            lot: ""
-        }
-    };
     $scope.mpdPlateforms = [
         "integration1",
         "integration2",
@@ -62,13 +28,46 @@ function versionController($scope) {
                     $scope.$apply();
                 },
                 error: function (error) {
-                    console.log("Error : " + error);
+                    console.log("Error : " + JSON.stringify(error));
                 }
             }
         );
     };
-    $scope.changeBoolean = function (isbool) {
-        isbool = !isbool;
+    $scope.forceUpdate = function () {
+        $.ajax(
+            {
+                method: "GET",
+                url: "/forceUpdate",
+                success: function (result) {
+                    $scope.dataTable = result.data;
+                    $scope.refreshDate = result.date;
+                    $scope.$apply();
+                },
+                error: function (error) {
+                    console.log("Error : " + JSON.stringify(error));
+                }
+            }
+        );
+    };
+    $scope.deployDateChange = function () {
+        if ($scope.deployDateEdit) {
+            $scope.dataTable.Deploy.forEach(function (deploy) {
+                delete deploy["$$hashKey"];
+            });
+            $http({
+                method: "POST",
+                data: $scope.dataTable.Deploy,
+                url: '/deployDate'
+            }).then(
+                function () {
+                    $(".alert-success").slideDown('slow').delay(1500).slideUp('slow');
+                },
+                function (error) {
+                    console.log("Error : " + JSON.stringify(error));
+                });
+        }
+        $scope.deployDateEdit = !$scope.deployDateEdit;
     };
     $scope.refreshData();
+    $(".alert").hide();
 }

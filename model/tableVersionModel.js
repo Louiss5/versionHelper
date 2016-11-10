@@ -16,6 +16,7 @@ var tableVersionModel = function (data) {
         this.tableVersion.push(new appDataModel(data.products || {}, "Products"));
         this.tableVersion.push(new appDataModel(data.itineraries || {}, "Itineraries"));
         this.tableVersion.push(new appDataModel(data.orders || {}, "Orders"));
+        this.tableVersion.push(new appDataModel(data.accounts || {}, "Accounts"));
         this.tableVersion.push(new appDataModel(data.dr || {}, "SiteDR"));
         for (env in config.tableEnv) {
             var mpd, etoil, deploy;

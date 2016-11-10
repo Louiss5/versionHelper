@@ -1,11 +1,11 @@
 "use strict";
-var dateObject = {date: "", lot: ""};
+var config = require("../config/config").config;
 
 var appDataModel = function (data, appName) {
     if (data !== undefined) {
         this.appName = appName;
-        this.DevLot1 = data.dev || "N.A.";
-        this.DevLot2 = data.devAS2 || "N.A.";
+        this.DevLot1 = data.devABC || "N.A.";
+        this.DevLot2 = data.devXYZ || "N.A.";
         this.DR1 = data.dr || data.drsue || "N.A.";
         this.DR2 = data.dr2 || data.drsue2 || "N.A.";
         this.DR3 = data.dr3 || data.drsue3 || "N.A.";

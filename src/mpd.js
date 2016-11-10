@@ -2,28 +2,13 @@
 var request = require("request");
 var _ = require("underscore");
 var Q = require("q");
-var baseUrl = "http://recette.{0}.mari-sncf.io/api/{1}/healthcheck";
+var baseUrl = "";
 var config = require("../config/config").config;
 var logger = require("@archiciel/log");
 
 function getHealthCheckByMS() {
     var defer = Q.defer();
-    var urls = [];
-    var environementList = config.environementList;
-    var msList = config.msList;
-    _.each(environementList, function (environementType, key) {
-        baseUrl = environementType.baseUrl;
-        _.each(environementType.env, function (environement) {
-            _.each(msList, function (ms) {
-                urls.push(
-                    {
-                        url: baseUrl.replace("{0}", environement).replace("{1}", ms),
-                        ms: ms,
-                        env: key + environement
-                    });
-            });
-        });
-    });
+    var urls = urlBuilder(config.host.meandev01 + config.pathHealtcheck, "environementDev", false).concat(urlBuilder(config.host.cloud + config.pathHealtcheck, "environementCloud", true));
     var promises = [];
     _.each(urls, function (url) {
         promises.push(getHealthCheck(url));
@@ -118,6 +103,23 @@ function getHealthCheck(url) {
         }
     });
     return defer.promise;
+}
+
+function urlBuilder(baseUrl, environement, isCloud) {
+    var msList = config.msList;
+    var urls = [];
+    _.each(msList, function (ms) {
+        var environementList = ms.hasOwnProperty(environement) ? ms[environement] : config[environement];
+        _.each(environementList, function (environement) {
+            urls.push(
+                {
+                    url: isCloud ? baseUrl.replace("{0}", environement).replace("{1}", ms.name) : baseUrl.replace("{1}", ms.name + environement),
+                    ms: ms.name,
+                    env: (isCloud ? "dr" : "dev") + environement
+                });
+        });
+    });
+    return urls;
 }
 
 module.exports = {

@@ -4,7 +4,7 @@ var _ = require("underscore");
 var himalaya = require("himalaya");
 var request = require("request");
 var config = require("../config/config").config;
-var baseUrl = "http://recette.{0}.mari-sncf.io/monitoring";
+var baseUrl = config.host.cloud + config.pathMonitoring;
 
 function getVersionDr() {
     var defer = Q.defer();

@@ -1,9 +1,20 @@
-var app = angular.module("versionHelper", []);
+var app = angular.module("versionHelper", ["ui.bootstrap"]);
 app.controller("versionController", versionController);
 
-versionController.$inject = ["$scope", "$http"];
+versionController.$inject = ["$scope", "$http", "$q"];
 
-function versionController($scope, $http) {
+function versionController($scope, $http, $q) {
+    $scope.isInit = true;
+    $scope.dateOptions = {
+        initDate: Date.now(),
+        formatYear: 'yy',
+        startingDay: 1
+    };
+
+    $scope.openDate = function (index) {
+        index.opened = true;
+    };
+
     $scope.mpdEdit = false;
     $scope.deployDateEdit = false;
     $scope.lotEdit = false;
@@ -18,35 +29,18 @@ function versionController($scope, $http) {
     $scope.dataTable = {};
     $scope.refreshDate = "";
     $scope.refreshData = function () {
-        $.ajax(
-            {
-                method: "GET",
-                url: "/data",
-                success: function (result) {
-                    $scope.dataTable = result.data;
-                    $scope.refreshDate = result.date;
-                    $scope.$apply();
-                },
-                error: function (error) {
-                    console.log("Error : " + JSON.stringify(error));
-                }
-            }
+        $http.get('/data').then(
+            UpdateData,
+            errorCallback
         );
     };
     $scope.forceUpdate = function () {
-        $.ajax(
-            {
-                method: "GET",
-                url: "/forceUpdate",
-                success: function (result) {
-                    $scope.dataTable = result.data;
-                    $scope.refreshDate = result.date;
-                    $scope.$apply();
-                },
-                error: function (error) {
-                    console.log("Error : " + JSON.stringify(error));
-                }
-            }
+        $http({
+            method: "GET",
+            url: '/forceUpdate'
+        }).then(
+            UpdateData,
+            errorCallback
         );
     };
     $scope.deployDateChange = function () {
@@ -59,15 +53,30 @@ function versionController($scope, $http) {
                 data: $scope.dataTable.Deploy,
                 url: '/deployDate'
             }).then(
-                function () {
+                function (result) {
+                    $scope.alertMessage = result.data.message;
                     $(".alert-success").slideDown('slow').delay(1500).slideUp('slow');
                 },
-                function (error) {
-                    console.log("Error : " + JSON.stringify(error));
-                });
+                errorCallback
+            );
         }
         $scope.deployDateEdit = !$scope.deployDateEdit;
     };
     $scope.refreshData();
     $(".alert").hide();
+
+    function UpdateData(result) {
+        var data = result.data;
+        $scope.dataTable = data.data;
+        $scope.refreshDate = data.date;
+        $scope.alertMessage = data.message;
+        if (!$scope.isInit) {
+            $scope.isInit = false;
+            $(".alert-success").slideDown('slow').delay(1500).slideUp('slow');
+        }
+    }
+
+    function errorCallback(error) {
+        console.log("Error : " + JSON.stringify(error));
+    }
 }

@@ -14,31 +14,31 @@ function getTableVersion() {
     var defer = Q.defer();
     cache.read("tableVersionData").then(
         function (data) {
-            logger.debug("[index][getTableVersion] Retour de cache");
+            logger.debug("[dataManager][getTableVersion] Retour de cache");
             if (data) {
-                logger.debug("[index][getTableVersion] Clé trouvée");
+                logger.debug("[dataManager][getTableVersion] Clé trouvée");
                 try {
                     var parsedData = utils.parseJSON(data);
                     parsedData.data = utils.parseJSON(parsedData.data);
                     defer.resolve(parsedData);
                 }
                 catch (exception) {
-                    logger.debug("[index][getTableVersion] Catch, erreur lors du parse de la value en cache");
+                    logger.debug("[dataManager][getTableVersion] Catch, erreur lors du parse de la value en cache");
                     readDataDb(defer);
                 }
             }
             else {
-                logger.debug("[index][getTableVersion] Aucune clé correspondante");
+                logger.debug("[dataManager][getTableVersion] Aucune clé correspondante");
                 readDataDb(defer);
             }
         },
         function () {
-            logger.debug("[index][getTableVersion] Reject de cache");
+            logger.debug("[dataManager][getTableVersion] Reject de cache");
             readDataDb(defer);
         }
     ).catch(
         function (exception) {
-            logger.debug("[index][getTableVersion] Erreur dans cache read : " + exception);
+            logger.debug("[dataManager][getTableVersion] Erreur dans cache read : " + exception);
             readDataDb(defer);
         }
     );
@@ -47,9 +47,9 @@ function getTableVersion() {
 
 /**
  * Récupération des données directement par appel des url.
- * @param defer Promesse à retourner.
  */
-function getData(defer) {
+function getData() {
+    var defer = Q.defer();
     Q.all([dr.getVersionDr(), mpd.getHealthCheck()]).then(
         function (value) {
             var result = {
@@ -108,43 +108,64 @@ function getData(defer) {
                 data: tableVersion,
                 date: Date.now()
             };
-            console.log(noSqlData);
-            readDataDb.then(
+            readDataDb().then(
                 function (value) {
+                    logger.info("[dataManager][getData] Retour de readDataDb");
                     noSqlData.data.Deploy = value.data.Deploy;
                     dataNOSQL.insertCollection("versionHelper", noSqlData);
+                    defer.resolve(noSqlData);
                 },
-                function () {
+                function (reason) {
+                    logger.info(reason);
                     dataNOSQL.insertCollection("versionHelper", noSqlData);
+                    defer.resolve(noSqlData);
                 }
             );
             cache.write("tableVersionData", utils.stringifyJSON(noSqlData), expireCache);
-            if (defer) {
-                defer.resolve(noSqlData);
-            }
+        },
+        function (reason){
+            logger.warn("[dataManager][getData] Erreur : " + utils.stringifyJSON(reason));
+            defer.reject(reason);
         }
-    )
-    ;
+    ).catch(
+        function (exception) {
+            logger.warn("[dataManager][getData] Exception : " + utils.stringifyJSON(exception));
+            defer.reject(exception);
+        }
+    );
+    return defer.promise;
 }
 
 function updateDeployInformation(data) {
     var defer = Q.defer();
-    readDataDb.then(
+    readDataDb().then(
         function (value) {
-            var date = value[0].date;
+            var date = value.date;
             dataNOSQL.updateCollection("versionHelper", {$set: {"data.Deploy": data}}, {date: date}, {multi: true}).then(
                 function () {
-                    logger.info("[index][updateCollection] Update de la date " + date + " OK");
+                    logger.info("[dataManager][updateCollection] Update de la date " + date + " OK");
                     cache.remove("tableVersionData");
                     defer.resolve("Update OK");
                 },
                 function (reason) {
-                    defer.reject("Update error : " + reason);
+                    logger.warn("[dataManager][updateDeployInformation] Erreur dans updateCollection : " + reason);
+                    defer.reject("Erreur dans updateCollection : " + reason);
+                }
+            ).catch(
+                function (exception) {
+                    logger.error("[dataManager][updateDeployInformation] Exception dans updateCollection : " + exception);
+                    defer.reject("Exception dans updateCollection : " + exception);
                 }
             );
         },
         function (reason) {
-            defer.reject("Erreur : " + reason);
+            logger.warn("[dataManager][updateDeployInformation] Erreur dans readDataDb : " + reason);
+            defer.reject("Erreur dans readDataDb : " + reason);
+        }
+    ).catch(
+        function (exception) {
+            logger.error("[dataManager][updateDeployInformation] Exception dans readDataDb : " + exception);
+            defer.reject("Exception dans readDataDb : " + exception);
         }
     );
     return defer.promise;
@@ -155,19 +176,26 @@ function updateDeployInformation(data) {
  * @param defer Promesse à retourner.
  */
 function readDataDb(defer) {
+    defer = defer || Q.defer();
     dataNOSQL.readCollection("versionHelper", {}, {sort: {date: -1}, limit: 1}).then(
         function (value) {
-            logger.debug("[index][readDataDb] Retour de dataNOSQL.read");
+            logger.debug("[dataManager][readDataDb] Retour de dataNOSQL.read");
             if (Array.isArray(value) && value[0]) {
                 defer.resolve(value[0]);
             }
             defer.reject("Erreur");
         },
         function (reason) {
-            logger.warn("[index][readDataDb] Erreur : " + reason);
+            logger.warn("[dataManager][readDataDb] Erreur : " + reason);
             defer.reject("Erreur : " + reason);
         }
+    ).catch(
+        function (exception) {
+            logger.error("[dataManager][readDataDb] Exception : " + exception);
+            defer.reject("Exception : " + exception);
+        }
     );
+    return defer.promise;
 }
 
 module.exports = {

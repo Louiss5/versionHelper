@@ -1,16 +1,18 @@
 "use strict";
+var _ = require("underscore");
 var appDataModel = require("./appDataModel");
 var mpdModel = require("./mpdModel");
 var etoilModel = require("./etoilModel");
 var deployModel = require("./deployModel");
 var config = require("../config/config").config;
+var envList = config.environementDev.concat(config.environementCloud);
 
 var tableVersionModel = function (data) {
-    var env;
     this.tableVersion = [];
     this.MPD = [];
     this.Etoil = [];
     this.Deploy = [];
+    var that = this;
     if (data !== undefined) {
         this.tableVersion.push(new appDataModel(data.suebea || {}, "Sue / Bea"));
         this.tableVersion.push(new appDataModel(data.products || {}, "Products"));
@@ -18,17 +20,15 @@ var tableVersionModel = function (data) {
         this.tableVersion.push(new appDataModel(data.orders || {}, "Orders"));
         this.tableVersion.push(new appDataModel(data.accounts || {}, "Accounts"));
         this.tableVersion.push(new appDataModel(data.dr || {}, "SiteDR"));
-        for (env in config.tableEnv) {
+        _.each(envList, function (env) {
             var mpd, etoil, deploy;
-            if (config.tableEnv.hasOwnProperty(env)) {
-                mpd = data.mpd ? data.mpd[config.tableEnv[env]] || {} : {};
-                etoil = data.etoil ? data.etoil[config.tableEnv[env]] || {} : {};
-                deploy = data.deploy ? data.deploy[config.tableEnv[env]] || {} : {};
-                this.MPD.push(new mpdModel(mpd, config.tableEnv[env]));
-                this.Etoil.push(new etoilModel(etoil, config.tableEnv[env]));
-                this.Deploy.push(new deployModel(deploy, config.tableEnv[env]));
-            }
-        }
+            mpd = data.mpd ? data.mpd[env] || {} : {};
+            etoil = data.etoil ? data.etoil[env] || {} : {};
+            deploy = data.deploy ? data.deploy[env] || {} : {};
+            that.MPD.push(new mpdModel(mpd, env));
+            that.Etoil.push(new etoilModel(etoil, env));
+            that.Deploy.push(new deployModel(deploy, env));
+        })
     }
 };
 

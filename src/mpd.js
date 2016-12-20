@@ -2,7 +2,6 @@
 var request = require("request");
 var _ = require("underscore");
 var Q = require("q");
-var baseUrl = "";
 var config = require("../config/config").config;
 var logger = require("@archiciel/log");
 
@@ -108,14 +107,14 @@ function getHealthCheck(url) {
 function urlBuilder(baseUrl, environement, isCloud) {
     var msList = config.msList;
     var urls = [];
+    var environementList = config[environement];
     _.each(msList, function (ms) {
-        var environementList = ms.hasOwnProperty(environement) ? ms[environement] : config[environement];
         _.each(environementList, function (environement) {
             urls.push(
                 {
-                    url: isCloud ? baseUrl.replace("{0}", environement).replace("{1}", ms.name) : baseUrl.replace("{1}", ms.name + environement),
-                    ms: ms.name,
-                    env: (isCloud ? "dr" : "dev") + environement
+                    url: isCloud ? baseUrl.replace("{0}", environement).replace("{1}", ms) : baseUrl.replace("{1}", ms + environement),
+                    ms: ms,
+                    env: environement
                 });
         });
     });

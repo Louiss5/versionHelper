@@ -3,7 +3,7 @@ app.controller("versionController", versionController);
 
 versionController.$inject = ["$scope", "$http", "$q"];
 
-function versionController($scope, $http, $q) {
+function versionController($scope, $http) {
     $scope.isInit = true;
     $scope.dateOptions = {
         initDate: Date.now(),
@@ -35,13 +35,16 @@ function versionController($scope, $http, $q) {
         );
     };
     $scope.forceUpdate = function () {
+        $("#forceUpdate").prop("disabled", true);
         $http({
             method: "GET",
             url: '/forceUpdate'
         }).then(
             UpdateData,
             errorCallback
-        );
+        ).finally(function () {
+            $("#forceUpdate").prop("disabled", false);
+        });
     };
     $scope.deployDateChange = function () {
         if ($scope.deployDateEdit) {
@@ -71,8 +74,10 @@ function versionController($scope, $http, $q) {
         $scope.refreshDate = data.date;
         $scope.alertMessage = data.message;
         if (!$scope.isInit) {
-            $scope.isInit = false;
             $(".alert-success").slideDown('slow').delay(1500).slideUp('slow');
+        }
+        else {
+            $scope.isInit = false;
         }
     }
 

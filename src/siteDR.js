@@ -3,8 +3,8 @@ var Q = require("q");
 var _ = require("underscore");
 var himalaya = require("himalaya");
 var request = require("request");
-var config = require("../config/config.json");
-var baseUrl = "http://recette.{0}.mari-sncf.io/monitoring";
+var config = require("../config/config").config;
+var baseUrl = config.host.cloud + config.pathMonitoring;
 
 function getVersionDr() {
     var defer = Q.defer();
@@ -24,7 +24,6 @@ function getVersionDr() {
     });
     Q.allSettled(promises).then(
         function (results) {
-            console.log("OK");
             var response = [];
             results.forEach(function (result) {
                 if (result.state === "fulfilled") {

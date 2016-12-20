@@ -1,46 +1,23 @@
-var app = angular.module("versionHelper", []);
+var app = angular.module("versionHelper", ["ui.bootstrap"]);
 app.controller("versionController", versionController);
 
-versionController.$inject = ["$scope"];
+versionController.$inject = ["$scope", "$http", "$q"];
 
-function versionController($scope) {
+function versionController($scope, $http) {
+    $scope.isInit = true;
+    $scope.dateOptions = {
+        initDate: Date.now(),
+        formatYear: 'yy',
+        startingDay: 1
+    };
+
+    $scope.openDate = function (index) {
+        index.opened = true;
+    };
+
     $scope.mpdEdit = false;
     $scope.deployDateEdit = false;
     $scope.lotEdit = false;
-    $scope.deployments = {
-        "DevLot1": {
-            date: "",
-            lot: ""
-        },
-        "DevLot2": {
-            date: "",
-            lot: ""
-        },
-        "DR1": {
-            date: "",
-            lot: ""
-        },
-        "DR2": {
-            date: "",
-            lot: ""
-        },
-        "DR3": {
-            date: "",
-            lot: ""
-        },
-        "DR4": {
-            date: "",
-            lot: ""
-        },
-        "DR5": {
-            date: "",
-            lot: ""
-        },
-        "DR6": {
-            date: "",
-            lot: ""
-        }
-    };
     $scope.mpdPlateforms = [
         "integration1",
         "integration2",
@@ -52,23 +29,59 @@ function versionController($scope) {
     $scope.dataTable = {};
     $scope.refreshDate = "";
     $scope.refreshData = function () {
-        $.ajax(
-            {
-                method: "GET",
-                url: "/data",
-                success: function (result) {
-                    $scope.dataTable = result.data;
-                    $scope.refreshDate = result.date;
-                    $scope.$apply();
-                },
-                error: function (error) {
-                    console.log("Error : " + error);
-                }
-            }
+        $http.get('/data').then(
+            UpdateData,
+            errorCallback
         );
     };
-    $scope.changeBoolean = function (isbool) {
-        isbool = !isbool;
+    $scope.forceUpdate = function () {
+        $("#forceUpdate").prop("disabled", true);
+        $http({
+            method: "GET",
+            url: '/forceUpdate'
+        }).then(
+            UpdateData,
+            errorCallback
+        ).finally(function () {
+            $("#forceUpdate").prop("disabled", false);
+        });
+    };
+    $scope.deployDateChange = function () {
+        if ($scope.deployDateEdit) {
+            $scope.dataTable.Deploy.forEach(function (deploy) {
+                delete deploy["$$hashKey"];
+            });
+            $http({
+                method: "POST",
+                data: $scope.dataTable.Deploy,
+                url: '/deployDate'
+            }).then(
+                function (result) {
+                    $scope.alertMessage = result.data.message;
+                    $(".alert-success").slideDown('slow').delay(1500).slideUp('slow');
+                },
+                errorCallback
+            );
+        }
+        $scope.deployDateEdit = !$scope.deployDateEdit;
     };
     $scope.refreshData();
+    $(".alert").hide();
+
+    function UpdateData(result) {
+        var data = result.data;
+        $scope.dataTable = data.data;
+        $scope.refreshDate = data.date;
+        $scope.alertMessage = data.message;
+        if (!$scope.isInit) {
+            $(".alert-success").slideDown('slow').delay(1500).slideUp('slow');
+        }
+        else {
+            $scope.isInit = false;
+        }
+    }
+
+    function errorCallback(error) {
+        console.log("Error : " + JSON.stringify(error));
+    }
 }

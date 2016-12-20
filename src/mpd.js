@@ -2,27 +2,12 @@
 var request = require("request");
 var _ = require("underscore");
 var Q = require("q");
-var baseUrl = "http://recette.{0}.mari-sncf.io/api/{1}/healthcheck";
 var config = require("../config/config").config;
+var logger = require("@archiciel/log");
 
 function getHealthCheckByMS() {
     var defer = Q.defer();
-    var urls = [];
-    var environementList = config.environementList;
-    var msList = config.msList;
-    _.each(environementList, function (environementType, key) {
-        baseUrl = environementType.baseUrl;
-        _.each(environementType.env, function (environement) {
-            _.each(msList, function (ms) {
-                urls.push(
-                    {
-                        url: baseUrl.replace("{0}", environement).replace("{1}", ms),
-                        ms: ms,
-                        env: key + environement
-                    });
-            });
-        });
-    });
+    var urls = urlBuilder(config.host.meandev01 + config.pathHealtcheck, "environementDev", false).concat(urlBuilder(config.host.cloud + config.pathHealtcheck, "environementCloud", true));
     var promises = [];
     _.each(urls, function (url) {
         promises.push(getHealthCheck(url));
@@ -34,13 +19,13 @@ function getHealthCheckByMS() {
                 if (result.state === "fulfilled") {
                     response.push(result.value);
                 } else {
-                    console.log(result.reason);
+                    logger.warn("Erreur lors de la récupération des info de " + result.reason.ms + " sur " + result.reason.url);
                 }
             });
             defer.resolve(response);
         },
         function (error) {
-            console.log("ERROR");
+            logger.warn("[mpd][getHealthCheckByMS] ERROR : " + error);
             defer.reject({
                 statusCode: 404,
                 error: error
@@ -48,7 +33,7 @@ function getHealthCheckByMS() {
         }
     ).catch(
         function (exception) {
-            console.log("EXCEPTION");
+            logger.warn("[mpd][getHealthCheckByMS] EXCEPTION : " + exception);
             defer.reject({
                 statusCode: 500,
                 error: exception
@@ -117,6 +102,23 @@ function getHealthCheck(url) {
         }
     });
     return defer.promise;
+}
+
+function urlBuilder(baseUrl, environement, isCloud) {
+    var msList = config.msList;
+    var urls = [];
+    var environementList = config[environement];
+    _.each(msList, function (ms) {
+        _.each(environementList, function (environement) {
+            urls.push(
+                {
+                    url: isCloud ? baseUrl.replace("{0}", environement).replace("{1}", ms) : baseUrl.replace("{1}", ms + environement),
+                    ms: ms,
+                    env: environement
+                });
+        });
+    });
+    return urls;
 }
 
 module.exports = {

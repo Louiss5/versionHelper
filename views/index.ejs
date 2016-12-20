@@ -7,18 +7,25 @@
     <link rel='stylesheet' href='/stylesheets/style.css'/>
     <script src='/javascripts/jquery.js'></script>
     <script src='/javascripts/angular.js'></script>
+    <script src='/javascripts/angular-locale_fr-fr.js'></script>
     <script src='/javascripts/bootstrap.js'></script>
+    <script src='/javascripts/ui-bootstrap.js'></script>
+    <script src='/javascripts/ui-bootstrap-tpls.js'></script>
     <script src='/app/version.controller.js'></script>
     <script src='/javascripts/main.js'></script>
 </head>
 <body class="container" ng-controller="versionController">
+<div class="alert alert-success" role="alert">
+    {{alertMessage}}
+</div>
 <h1><%= title %></h1>
 <table class="table table-striped table-bordered">
     <thead>
     <tr>
         <th>Application</th>
-        <th>DevLot1</th>
-        <th>DevLot2</th>
+        <th>DRD</th>
+        <th>PAC</th>
+        <th>INT</th>
         <th>DR1</th>
         <th>DR2</th>
         <th>DR3</th>
@@ -29,10 +36,11 @@
     </tr>
     </thead>
     <tbody>
-    <tr ng-repeat="(key, value) in dataTable" ng-if="key !== 'MPD' && key !== 'Etoil'">
-        <th>{{key}}</th>
-        <td>{{value.DevLot1}}</td>
-        <td>{{value.DevLot2}}</td>
+    <tr ng-repeat="value in dataTable.tableVersion">
+        <th>{{value.appName}}</th>
+        <td>{{value.DRD}}</td>
+        <td>{{value.PAC}}</td>
+        <td>{{value.INT}}</td>
         <td>{{value.DR1}}</td>
         <td>{{value.DR2}}</td>
         <td>{{value.DR3}}</td>
@@ -44,9 +52,11 @@
     <tr>
         <th>MPD</th>
         <td ng-repeat="mpd in dataTable.MPD">
-            <label ng-if="mpd.url" ng-show="!mpdEdit" id="mpdPlateformLabel{{$index}}" for="mpdPlateformSelect{{$index}}">{{mpd.url}}</label>
+            <label ng-if="mpd.url" ng-show="!mpdEdit" id="mpdPlateformLabel{{$index}}"
+                   for="mpdPlateformSelect{{$index}}">{{mpd.url}}</label>
             <select ng-if="mpd.url" ng-show="mpdEdit" id="mpdPlateformSelect{{$index}}" ng-model="mpd.url">
-                <option ng-repeat="mpdPlateform in mpdPlateforms" value="{{mpdPlateform}}" ng-selected="mpd.url === mpdPlateform">
+                <option ng-repeat="mpdPlateform in mpdPlateforms" value="{{mpdPlateform}}"
+                        ng-selected="mpd.url === mpdPlateform">
                     {{mpdPlateform}}
                 </option>
             </select>
@@ -56,15 +66,17 @@
             </p>
         </td>
         <td>
-            <button ng-show="!mpdEdit" ng-click="mpdEdit = !mpdEdit" type="button" class="btn btn-default">
+            <button ng-show="!mpdEdit" ng-click="mpdEdit = !mpdEdit" type="button" class="btn btn-default" disabled>
                 <span class="glyphicon glyphicon-pencil"></span>
             </button>
-            <button ng-show="mpdEdit" ng-click="mpdEdit = !mpdEdit" type="button" class="btn btn-default">
-                <span class="glyphicon glyphicon-ok"></span>
-            </button>
-            <button ng-show="mpdEdit" ng-click="mpdEdit = !mpdEdit" type="button" class="btn btn-default">
-                <span class="glyphicon glyphicon-remove"></span>
-            </button>
+            <div class="btn-group" role="group" aria-label="...">
+                <button ng-show="mpdEdit" ng-click="mpdEdit = !mpdEdit" type="button" class="btn btn-default">
+                    <span class="glyphicon glyphicon-ok"></span>
+                </button>
+                <button ng-show="mpdEdit" ng-click="mpdEdit = !mpdEdit" type="button" class="btn btn-default">
+                    <span class="glyphicon glyphicon-remove"></span>
+                </button>
+            </div>
         </td>
     </tr>
     <tr>
@@ -72,29 +84,40 @@
         <td ng-repeat="etoil in dataTable.Etoil">
             <p ng-if="etoil.isDifferent">Attention !!!</p>
 
-            <p ng-if="!etoil.isDifferent">{{etoil}}</p>
+            <p ng-if="!etoil.isDifferent">{{etoil.value}}</p>
         </td>
         <td>
         </td>
     </tr>
     <tr>
         <th>Date de déploiement</th>
-        <td ng-repeat="deploy in deployments">
-            <label ng-show="!deployDateEdit" id="deployDateLabel{{$index}}" for="deployDateInput{{$index}}">{{deploy.date}}</label>
-            <input ng-show="deployDateEdit" id="deployDateInput{{$index}}" type="text" ng-model="deploy.date" size="15">
+        <td ng-repeat="deploy in dataTable.Deploy">
+            <label ng-show="!deployDateEdit" id="deployDateLabel{{$index}}" for="deployDateInput{{$index}}">{{deploy.date
+                | date:"dd/MM/yyyy"}}</label>
+
+            <p ng-show="deployDateEdit" class="input-group">
+                <input id="deployDateInput{{$index}}" ng-model="deploy.date" size="15"
+                       type="text" class="form-control" uib-datepicker-popup="dd/MM/yyyy" data-clear-text=""
+                       data-is-open="deploy.opened"
+                       data-datepicker-options="dateOptions"/>
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" ng-click="openDate(deploy)"><i
+                                class="glyphicon glyphicon-calendar"></i></button>
+                </span>
+            </p>
         </td>
         <td style="text-align: center">
-            <button ng-show="!deployDateEdit" type="button" ng-click="deployDateEdit = !deployDateEdit" class="btn btn-default">
+            <button ng-show="!deployDateEdit" type="button" ng-click="deployDateChange()" class="btn btn-default">
                 <span class="glyphicon glyphicon-pencil"></span>
             </button>
-            <button ng-show="deployDateEdit" type="button" ng-click="deployDateEdit = !deployDateEdit" class="btn btn-default">
+            <button ng-show="deployDateEdit" type="button" ng-click="deployDateChange()" class="btn btn-default">
                 <span class="glyphicon glyphicon-floppy-disk"></span>
             </button>
         </td>
     </tr>
     <tr>
         <th>Lot</th>
-        <td ng-repeat="deploy in deployments">
+        <td ng-repeat="deploy in dataTable.Deploy">
             <label ng-show="!lotEdit" id="lotLabel{{$index}}" for="lotInput{{$index}}">{{deploy.lot}}</label>
             <input ng-show="lotEdit" id="lotInput{{$index}}" type="text" ng-model="deploy.lot" size="15">
         </td>
@@ -110,10 +133,16 @@
     </tbody>
 </table>
 
-<button type="button" class="btn btn-default" id="refreshBtn" ng-click="refreshData()">
-    <span class="glyphicon glyphicon-refresh"> Rafraîchir</span>
-</button>
-<div>Dernier export des données : {{refreshDate | date:"dd/MM/yyyy 'à' HH:mm"}}</div>
+<div class="btn-group" role="group" aria-label="...">
+    <button type="button" class="btn btn-default" id="refreshBtn" ng-click="refreshData()" title="Rafraîchir">
+        <span class="glyphicon glyphicon-refresh"></span>
+    </button>
+    <button type="button" class="btn btn-default" id="forceUpdate" ng-click="forceUpdate()"
+            title="Forcer l'import des données">
+        <span class="glyphicon glyphicon-import"></span>
+    </button>
+</div>
+<label class="label-custom">Dernier export des données : <strong>{{refreshDate | date:"dd/MM/yyyy 'à' HH:mm"}}</strong></label>
 
 </body>
 </html>

@@ -33,3 +33,16 @@ input [disabled] {
   border: none;
   background-color: inherit;
 }
+
+.label-custom{
+  font-weight: normal;
+}
+
+tr td, tr th {
+  text-align: center;
+}
+
+tr th:first-child {
+  width: 105px;
+  text-align: initial;
+}
